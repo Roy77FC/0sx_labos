@@ -68,7 +68,4 @@ void loop() {
       position = 0;
       break;
   }
-
-  
-
 }
