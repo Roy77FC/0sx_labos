@@ -1,7 +1,5 @@
 const int DEL = 13;
-String etatDel[3] = {"Allume", "Varie", "Clignote"};;
-int luminosite = 0;
-int degradement = 5;
+String etatDel[3] = {"Clignote", "Varie", "Allume"};;
 int position = 0;
 
 void setup() {
@@ -10,10 +8,12 @@ void setup() {
 }
 
 void allumerEteindre(){
+
+  Serial.println("message :"+ etatDel[position] +"-2510948");
+
   digitalWrite(DEL, LOW);
   delay(300);                      
   digitalWrite(DEL, HIGH);   
-  Serial.println("message :"+ etatDel[position] +"-2510948");
   delay(2000);                    
   digitalWrite(DEL, LOW);  
   delay(1000);  
@@ -22,6 +22,10 @@ void allumerEteindre(){
 void varierEtats(){
   float dureeTotale = 2048;
   const int tempPause = 30;
+  int luminosite = 0;
+  int degradement = 5;
+
+  Serial.println("message :"+ etatDel[position] +"-2510948");
 
   for(int i = 0; i < dureeTotale/tempPause; i++){
     analogWrite(DEL, luminosite);
@@ -33,12 +37,11 @@ void varierEtats(){
     }
     delay(tempPause);
   }
-  Serial.println("message :"+ etatDel[position] +"-2510948");
 }
 
 void clignoter(){
 
-  // NO Étudiant 2510948
+  Serial.println("message :"+ etatDel[position] +"-2510948");
 
   for(int i = 0; i < 2; i++){
     digitalWrite(DEL, HIGH);
@@ -46,15 +49,14 @@ void clignoter(){
     digitalWrite(DEL,LOW);
     delay(350);
   }
-  Serial.println("message :"+ etatDel[position] +"-2510948");
 }
 
 void loop() {
 
   switch(position){
     case 0: 
-      // État allumé éteint
-      allumerEteindre();
+      //État clignotement
+      clignoter();
       position++; 
       break;
     case 1:
@@ -63,8 +65,8 @@ void loop() {
       position++;
       break;
     case 2:
-      //État clignotement
-      clignoter();
+      // État allumé éteint
+      allumerEteindre();
       position = 0;
       break;
   }
