@@ -17,7 +17,7 @@ void setup() {
   }
 }
 
-void lightUpDels(unsigned long potValue){
+void lightUpDelsOdd(unsigned long potValue){
   static int STATES_DELS[4];
 
   if(potValue <= 5){
@@ -39,10 +39,9 @@ void lightUpDels(unsigned long potValue){
     STATES_DELS[3] = LOW;
   }
   else{
-    STATES_DELS[0] = HIGH;
-    STATES_DELS[1] = HIGH;
-    STATES_DELS[2] = HIGH;
-    STATES_DELS[3] = HIGH;
+    for(int i = 0; i < 4; i++){
+      STATES_DELS[i] = HIGH;
+    }
   }
 
   digitalWrite(DELS[0], STATES_DELS[0]);
@@ -51,29 +50,57 @@ void lightUpDels(unsigned long potValue){
   digitalWrite(DELS[3], STATES_DELS[3]);
 }
 
-void displayPercent(unsigned long potValue, int botonState){
+void lightUpDelsPair(unsigned long potValue){
+  static int STATES_DELS[4];
 
-  static int previousState = HIGH;
-  
+  for(int i = 0; i < 4; i++){
+    STATES_DELS[i] = LOW;
+  }
+
   if(potValue <= 5){
-    percent = "[!!!!!...............]   25%";
+    STATES_DELS[0] = HIGH;
   }
   else if(potValue <= 10){
-    percent = "[!!!!!!!!!!..........]   50%";
+    STATES_DELS[1] = HIGH;
   }
   else if(potValue <= 15){
-    percent = "[!!!!!!!!!!!!!!!.....]   75%";
+    STATES_DELS[2] = HIGH;
   }
   else{
-    percent = "[!!!!!!!!!!!!!!!!!!!!]   100%";
+    STATES_DELS[3] = HIGH;
   }
-  
-  if(previousState != botonState){
-    Serial.println(percent);
+
+  for(int i = 0; i < 4; i++){
+    digitalWrite(DELS[i], STATES_DELS[i]);
   }
+}
+
+void displayPercent(unsigned long potValue, int botonState){
+  unsigned previousPotValue;
+  static int previousState = HIGH;
   
+  while(!botonState){
+    if(potValue <= 5){
+      percent = "[!!!!!...............]   25%";
+    }
+    else if(potValue <= 10){
+      percent = "[!!!!!!!!!!..........]   50%";
+    }
+    else if(potValue <= 15){
+      percent = "[!!!!!!!!!!!!!!!.....]   75%";
+    }
+    else{
+      percent = "[!!!!!!!!!!!!!!!!!!!!]   100%";
+    }
+    
+    if(previousState != botonState && potValue != previousPotValue){
+      Serial.println(percent);
+      previousPotValue = potValue;
+    }
+
+    botonState = digitalRead(BOTON_PIN);
+  }
   previousState = botonState;
-  
 }
 
 void loop() {
@@ -88,7 +115,7 @@ void loop() {
   botonState = digitalRead(BOTON_PIN);
 
 
-  lightUpDels(potValue); // Allumer les leds
+  lightUpDelsPair(potValue); // Allumer les leds
 
   displayPercent(potValue, botonState); // afficher la progression de l'état des leds
 
