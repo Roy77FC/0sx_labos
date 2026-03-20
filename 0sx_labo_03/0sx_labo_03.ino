@@ -1,4 +1,5 @@
 #include <LCD_I2C.h> // Roynel Fonseca
+#include <string.h>
 
 int THERM_PIN = A0;
 int AXE_X_PIN = A1;
@@ -50,34 +51,63 @@ float getTemp(){
   return Tc;
 }
 
+void displayLines(String line1, String line2){
+  const int screenCols = 16;
+
+  while(line1.length() < screenCols){
+    line1 += ' ';
+  }
+  while(line2.length() < screenCols){
+    line2 += ' ';
+  }
+ 
+  for(int i = 0; i < screenCols; i++){
+    lcd.setCursor(i,0);
+    
+    if(i < line1.length()){
+      lcd.print(line1[i]);
+    }
+  }
+
+  for(int i = 0; i < screenCols; i++){
+    lcd.setCursor(i,1);
+
+    if(i < line1.length()){
+      lcd.print(line2[i]);
+    }else{
+      lcd.print(' ');
+    }
+  }
+}
+
 int dispplayTherm(){
     // int temperature = (int)getTemp() + 0.5;
   float temperature = getTemp();
-  int coolingState = HIGH;
+  static int coolingState = LOW;
+  static String  coolVal = "";
+  String line1 = "";
+  String line2 = "";
 
-  if(temperature > 35){
-    digitalWrite(PIN_LED, coolingState);
-    lcd.setCursor(0,0);
-    lcd.print(temperature);
-    lcd.print(" C");
-    lcd.setCursor(0,1);
-    lcd.print("COOL: ON");
-  }else if (temperature < 30){
+
+  if(temperature > 20){
+    coolingState = HIGH;
+  }else if (temperature < 18){
     coolingState = LOW;
-    digitalWrite(PIN_LED, coolingState);
-    lcd.setCursor(0,0);
-    lcd.print(temperature);
-    lcd.print(" C");
-    lcd.setCursor(0,1);
-    lcd.print("COOL: OFF");
-  }else{
-    digitalWrite(PIN_LED, coolingState);
-    lcd.setCursor(0,0);
-    lcd.print(temperature);
-    lcd.print(" C");
-    lcd.setCursor(0,1);
-    lcd.print("COOL: ON");
   }
+
+  if(coolingState){
+    line2 = "COOL: ON";
+  }else{
+    line2 = "COOL: OFF";
+  }
+
+  digitalWrite(PIN_LED, coolingState);
+
+  line1 = String(temperature) + " C";
+  
+
+  displayLines(line1, line2);
+
 
   return coolingState;
 }
@@ -88,7 +118,9 @@ void setSpeedAndDirection(int& xVal, int& yVal, unsigned long currentTime){
   yVal = analogRead(AXE_Y_PIN);
   const int speedAdvancement = 1000;
   static unsigned long lastTime = 0;
-  char direction;
+  String direction;
+  String line1 = "";
+  String line2 = "";
 
   int xDeg = map(xVal, 0, 1023, -90, 95);
   // int ySpeed = map(yVal, 0, 1023, 0, 200);
@@ -108,35 +140,30 @@ void setSpeedAndDirection(int& xVal, int& yVal, unsigned long currentTime){
   }
 
   if(xDeg < 0){
-    direction = 'D';
+    direction = "D";
   }else{
-    direction = 'G';
+    direction = "G";
   }
   
   if(xDeg == 0){
-    lcd.setCursor(0,0);
-    lcd.print("ALT: ");
-    lcd.print(highVal);
-    lcd.print("m");
-    lcd.setCursor(0,1);
-    lcd.print("DIR: ");
-    lcd.print(xDeg);
+
+    line1 = "ALT : " + String(highVal) + "m";
+    line2 = "DIR : 0";
   }else{
-    lcd.setCursor(0,0);
-    lcd.print("ALT: ");
-    lcd.print(highVal);
-    lcd.print("m");
-    lcd.setCursor(0,1);
-    lcd.print("DIR: ");
+
+    line1 = "ALT : " + String(highVal) + "m";
+    line2 = "DIR : ";
+
     if(xDeg >= 90){             // l'affichage des degrées est inverse pour qu'il ait pus de sens avec le mouvement du joystick :)
-      lcd.print("-90");
+      line2 += "-90";
     }else{
-      lcd.print(xDeg * -1);
+      line2 += String(xDeg * -1);
     }
-    lcd.print("(");
-    lcd.print(direction);
-    lcd.print(")");
+
+    line2 += "(" + String(direction) + ")";
   }
+
+  displayLines(line1, line2);
 }
 
 void displaySpeedAndDirection(unsigned long currentTime){
@@ -186,7 +213,7 @@ void displaySpeedAndDirection(unsigned long currentTime){
 
 void loop() {
   unsigned long currentTime = millis();
-  
+  String nettoyer = " ";
   if(currentTime < 3000){
     lcd.setCursor(0,0);
     lcd.print("Fonseca Cabarcas");
@@ -195,8 +222,7 @@ void loop() {
     lcd.rightToLeft();
     lcd.setCursor(16,1);
     lcd.print("84*****");
-  }else{  
-    lcd.clear();
+  }else{   
     displaySpeedAndDirection(currentTime);
   }
 }
