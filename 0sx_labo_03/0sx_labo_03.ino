@@ -51,7 +51,7 @@ float getTemp(){
   return Tc;
 }
 
-void displayLines(String line1, String line2){
+void displayLines(String line1 = "", String line2 = ""){
   const int screenCols = 16;
 
   while(line1.length() < screenCols){
