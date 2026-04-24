@@ -225,21 +225,6 @@ void manualOpenClick(){
   }
 }
 
-void emergencyClick(){
-
-  static unsigned long previousState = 0;
-  int delayTime = 50;
-
-  if(millis() - previousState >= delayTime){
-    previousState = millis();
-    if(!emergencyButtonClick){
-    emergencyButtonClick = true;
-    opentButtonClick = false;
-    }
-  }
-  
-}
-
 void mainFunction(int &angle, float distance){
 
   static bool justOnceAuto = true;
@@ -249,9 +234,6 @@ void mainFunction(int &angle, float distance){
   static unsigned long previousTimeEmergencyBt = 0;
 
   Serial.println(emergencyButtonClick);
-  
-  openBtn.attachClick(manualOpenClick);
-  emergencyBtn.attachClick(emergencyClick);
 
   switch(currentState){
     case AUTO_OPENING:
@@ -296,7 +278,7 @@ void mainFunction(int &angle, float distance){
       break;
     case EMERGENCY_STOP:
       state = "EMERGECY STOP";
-      printLcd("Mode: ",state);
+      printLcd(state,"Position: " + String(angle));
 
       if(emergencyButtonClick){
         servo.attach(SERVO_PIN);
@@ -322,6 +304,9 @@ void setup() {
   lcd.backlight();
   servo.attach(SERVO_PIN);
   servo.write(MIN_ANGLE);
+
+  openBtn.attachClick(manualOpenClick);
+  emergencyBtn.attachClick(emergencyClick);
 }
 
 void loop() {
