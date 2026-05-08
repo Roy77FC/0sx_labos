@@ -4,7 +4,7 @@
 
 class DC_Motor{
   public:
-    DC_Motor(const int &input1Pin,const int &input2Pin);
+    DC_Motor(const int &input1Pin, const int &input2Pin);
     void activateMotor(const int &valForInput1, const int &valForInput2);
     int getSeuilMin();
 

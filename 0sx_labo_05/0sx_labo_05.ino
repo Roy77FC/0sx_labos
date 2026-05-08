@@ -7,8 +7,6 @@ DC_Motor DC(44,45);
 LCD_I2C lcd(0x27, 16, 2);
 OneButton emergencyBtn(joystick.getButtonPin(), true);
 
-
-
 const int GREEN_LED_PIN = 10;
 const int RED_LED_PIN = 9;
 const int JOY_DEAD_ZONE = 30; 
@@ -46,6 +44,11 @@ void setJoystickValues(int &xVal, int &yVal){
 void setSpeedAndDirection(int &xVal, int &yVal){
 
   if(yVal > MID_ZONE_UP){
+
+    if(xVal < MIN_SPEED){
+      xVal = MIN_SPEED;
+    }
+
     DC.activateMotor(xVal, LOW);
     conveyorDirection = FRONT;
     Serial.println("FRONT");
@@ -77,6 +80,10 @@ void mainFunction(int &xVal, int &yVal){
   String direction = "AVANT";
   // Serial.print("X value : " + String(xVal));
   // Serial.println("Y value : " + String(yVal));
+
+  if(xVal < MIN_SPEED){
+    xVal = MIN_SPEED;
+  }
 
   if(conveyorState != 2){
     if(yVal < MID_ZONE_DOWN){
